@@ -5,6 +5,6 @@ exports.updateProfileValidation = [
   body('age').optional().isNumeric().withMessage('Age must be a number'),
   body('weight').optional().isNumeric().withMessage('Weight must be a number'),
   body('height').optional().isNumeric().withMessage('Height must be a number'),
-  body('allergies').optional().withMessage('Allergies must be provided'),
-  body('dietaryPreferences').optional().withMessage('Dietary preferences must be provided')
+  body('allergies').optional(),
+  body('dietaryPreferences').optional()
 ];
