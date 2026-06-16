@@ -11,7 +11,9 @@ exports.analyzeFood = async (user, file) => {
   }
 
   // 1. Upload to Cloudinary
-  const result = await cloudinary.uploader.upload(file.path, {
+  const b64 = Buffer.from(file.buffer).toString("base64");
+  const dataURI = "data:" + file.mimetype + ";base64," + b64;
+  const result = await cloudinary.uploader.upload(dataURI, {
     folder: 'nutriscan/scans'
   });
   const imageUrl = result.secure_url;
@@ -24,9 +26,9 @@ exports.analyzeFood = async (user, file) => {
     height: user.height
   };
 
-  // 3. Call Gemini API using the uploaded file path
+  // 3. Call Gemini API using the uploaded file object
   const geminiService = require('./gemini.service');
-  const aiResult = await geminiService.analyzeFoodImage(file.path, userContext);
+  const aiResult = await geminiService.analyzeFoodImage(file, userContext);
   
   // Set default score color based on status
   let scoreColour = "#F59E0B"; // Moderate (Amber)

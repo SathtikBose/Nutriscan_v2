@@ -1,10 +1,7 @@
 const ai = require('../config/gemini');
 
-exports.analyzeFoodImage = async (filePath, userContext) => {
+exports.analyzeFoodImage = async (file, userContext) => {
     try {
-        // Upload the file to Gemini
-        const uploadResult = await ai.files.upload({ file: filePath });
-
         const prompt = `Analyze this food product image. 
 User context: Age ${userContext.age || 'unknown'}, Allergies: ${(userContext.allergies && userContext.allergies.length > 0) ? userContext.allergies.join(', ') : 'none'}, Dietary Preferences: ${(userContext.dietaryPreferences && userContext.dietaryPreferences.length > 0) ? userContext.dietaryPreferences.join(', ') : 'none'}, Weight: ${userContext.weight || 'unknown'}kg, Height: ${userContext.height || 'unknown'}cm.
 
@@ -39,7 +36,12 @@ Return ONLY a JSON object with this exact structure (no markdown, no backticks, 
         const response = await ai.models.generateContent({
             model: 'gemini-2.5-flash',
             contents: [
-                uploadResult,
+                {
+                    inlineData: {
+                        data: file.buffer.toString("base64"),
+                        mimeType: file.mimetype
+                    }
+                },
                 prompt
             ]
         });

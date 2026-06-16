@@ -26,7 +26,7 @@ app.set('trust proxy', 1);
 app.use(helmet());
 app.use(cors());
 app.use(mongoSanitize());
-app.use(xss());
+// app.use(xss()); // Removed deprecated xss-clean
 
 // Body parser
 app.use(express.json());

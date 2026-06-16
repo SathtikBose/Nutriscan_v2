@@ -14,7 +14,9 @@ exports.getProfile = async (userId) => {
 exports.updateProfile = async (userId, data, file) => {
   let profilePicUrl;
   if (file) {
-    const result = await cloudinary.uploader.upload(file.path, {
+    const b64 = Buffer.from(file.buffer).toString("base64");
+    const dataURI = "data:" + file.mimetype + ";base64," + b64;
+    const result = await cloudinary.uploader.upload(dataURI, {
       folder: 'nutriscan/profiles'
     });
     profilePicUrl = result.secure_url;

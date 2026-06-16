@@ -6,7 +6,7 @@ const validate = require('../middleware/validate');
 const { protect } = require('../middleware/auth');
 const multer = require('multer');
 
-const upload = multer({ dest: 'uploads/' });
+const upload = multer({ storage: multer.memoryStorage() });
 
 router.use(protect);
 
