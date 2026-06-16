@@ -112,7 +112,23 @@ exports.resetPassword = async (data) => {
 };
 
 exports.changePassword = async (userId, data) => {
-  // Implementation stub for change password
+  const { currentPassword, newPassword } = data;
+  const user = await User.findById(userId);
+  if (!user) {
+    const err = new Error('User not found');
+    err.statusCode = 404;
+    throw err;
+  }
+
+  if (!(await user.matchPassword(currentPassword))) {
+    const err = new Error('Incorrect current password');
+    err.statusCode = 400;
+    throw err;
+  }
+
+  user.password = newPassword;
+  await user.save();
+
   return { success: true, message: 'Password changed successfully' };
 };
 

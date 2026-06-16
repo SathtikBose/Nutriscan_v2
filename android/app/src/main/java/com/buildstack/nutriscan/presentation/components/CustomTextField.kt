@@ -39,8 +39,8 @@ fun CustomTextField(
         colors = OutlinedTextFieldDefaults.colors(
             focusedBorderColor = PrimaryGreen,
             unfocusedBorderColor = androidx.compose.material3.MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f),
-            focusedContainerColor = androidx.compose.material3.MaterialTheme.colorScheme.surfaceVariant,
-            unfocusedContainerColor = androidx.compose.material3.MaterialTheme.colorScheme.surfaceVariant,
+            focusedContainerColor = Color.Transparent,
+            unfocusedContainerColor = Color.Transparent,
             focusedTextColor = androidx.compose.material3.MaterialTheme.colorScheme.onSurface,
             unfocusedTextColor = androidx.compose.material3.MaterialTheme.colorScheme.onSurface
         ),
