@@ -6,6 +6,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -29,8 +30,13 @@ class MainActivity : ComponentActivity() {
             val themeMode by tokenManager.theme.collectAsState(initial = "SYSTEM")
             
             com.buildstack.nutriscan.presentation.theme.NutriScanTheme(themeMode = themeMode) {
-                androidx.compose.foundation.layout.Box(modifier = Modifier.safeDrawingPadding()) {
-                    com.buildstack.nutriscan.presentation.navigation.NutriScanNavProvider()
+                androidx.compose.material3.Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = androidx.compose.material3.MaterialTheme.colorScheme.background
+                ) {
+                    androidx.compose.foundation.layout.Box(modifier = Modifier.safeDrawingPadding()) {
+                        com.buildstack.nutriscan.presentation.navigation.NutriScanNavProvider()
+                    }
                 }
             }
         }
