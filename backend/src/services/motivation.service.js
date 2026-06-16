@@ -1,5 +1,4 @@
 const Motivation = require('../models/Motivation');
-const ai = require('../config/gemini');
 
 exports.getDailyMotivation = async (userId) => {
   // Check if there is a motivation for today
@@ -12,9 +11,9 @@ exports.getDailyMotivation = async (userId) => {
   });
 
   if (!motivation) {
-    // Generate new motivation using Gemini
-    const geminiService = require('./gemini.service');
-    const message = await geminiService.generateMotivationMessage();
+    // Generate new motivation using Groq
+    const groqService = require('./groq.service');
+    const message = await groqService.generateMotivationMessage();
     
     motivation = await Motivation.create({
       userId,

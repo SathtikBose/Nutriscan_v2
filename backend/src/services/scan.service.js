@@ -1,8 +1,6 @@
 const Scan = require('../models/Scan');
 const User = require('../models/User');
 const cloudinary = require('../config/cloudinary');
-const ai = require('../config/gemini');
-
 exports.analyzeFood = async (user, file) => {
   if (!file) {
     const err = new Error('No image provided');
@@ -26,7 +24,7 @@ exports.analyzeFood = async (user, file) => {
   const result = await uploadStream();
   const imageUrl = result.secure_url;
 
-  // 2. Prepare Gemini Context
+  // 2. Prepare AI Context
   const userContext = {
     age: user.age,
     allergies: user.allergies,
@@ -34,9 +32,9 @@ exports.analyzeFood = async (user, file) => {
     height: user.height
   };
 
-  // 3. Call Gemini API using the uploaded file object
-  const geminiService = require('./gemini.service');
-  const aiResult = await geminiService.analyzeFoodImage(file, userContext);
+  // 3. Call Groq API using the uploaded file object
+  const groqService = require('./groq.service');
+  const aiResult = await groqService.analyzeFoodImage(file, userContext);
   
   // Set default score color based on status
   let scoreColour = "#F59E0B"; // Moderate (Amber)
