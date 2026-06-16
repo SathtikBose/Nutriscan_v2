@@ -14,10 +14,19 @@ const { validateEnv } = require('./src/utils/env');
 // Validate environment variables
 validateEnv();
 
-// Connect to database
-connectDB();
+// Remove standalone connectDB call since we handle it in middleware
 
 const app = express();
+
+// Ensure DB is connected before handling requests
+app.use(async (req, res, next) => {
+  try {
+    await connectDB();
+    next();
+  } catch (error) {
+    next(error);
+  }
+});
 
 // Trust proxy for Vercel and rate limiting
 app.set('trust proxy', 1);
