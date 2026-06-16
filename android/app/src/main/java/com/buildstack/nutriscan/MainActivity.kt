@@ -29,7 +29,9 @@ class MainActivity : ComponentActivity() {
             val themeMode by tokenManager.theme.collectAsState(initial = "SYSTEM")
             
             com.buildstack.nutriscan.presentation.theme.NutriScanTheme(themeMode = themeMode) {
-                com.buildstack.nutriscan.presentation.navigation.NutriScanNavProvider()
+                androidx.compose.foundation.layout.Box(modifier = Modifier.safeDrawingPadding()) {
+                    com.buildstack.nutriscan.presentation.navigation.NutriScanNavProvider()
+                }
             }
         }
     }

@@ -13,7 +13,9 @@ const userSchema = new mongoose.Schema({
   height: { type: Number, default: null },
   role: { type: String, default: 'user' },
   emailVerified: { type: Boolean, default: false },
-  refreshToken: { type: String, default: null }
+  refreshToken: { type: String, default: null },
+  resetPasswordOtp: { type: String, default: null },
+  resetPasswordOtpExpiry: { type: Date, default: null }
 }, {
   timestamps: true
 });

@@ -39,17 +39,69 @@ exports.login = async (data) => {
 };
 
 exports.forgotPassword = async (email) => {
-  // Implementation stub for forgot password
+  const user = await User.findOne({ email });
+  if (!user) {
+    const err = new Error('No account found with this email');
+    err.statusCode = 404;
+    throw err;
+  }
+  
+  const otp = generateOTP();
+  user.resetPasswordOtp = otp;
+  user.resetPasswordOtpExpiry = Date.now() + 15 * 60 * 1000; // 15 mins
+  await user.save();
+  
+  const emailHtml = `
+    <h1>Password Reset</h1>
+    <p>Your OTP for password reset is: <strong>${otp}</strong></p>
+    <p>This OTP is valid for 15 minutes.</p>
+  `;
+  
+  await sendEmail({
+    to: email,
+    subject: 'Password Reset OTP - NutriScan',
+    html: emailHtml
+  });
+
   return { success: true, message: 'OTP sent to email' };
 };
 
 exports.verifyOtp = async (data) => {
-  // Implementation stub for verify OTP
+  const { email, otp } = data;
+  const user = await User.findOne({ 
+    email, 
+    resetPasswordOtp: otp,
+    resetPasswordOtpExpiry: { $gt: Date.now() }
+  });
+  
+  if (!user) {
+    const err = new Error('Invalid or expired OTP');
+    err.statusCode = 400;
+    throw err;
+  }
+  
   return { success: true, message: 'OTP verified' };
 };
 
 exports.resetPassword = async (data) => {
-  // Implementation stub for reset password
+  const { email, otp, newPassword } = data;
+  const user = await User.findOne({ 
+    email, 
+    resetPasswordOtp: otp,
+    resetPasswordOtpExpiry: { $gt: Date.now() }
+  });
+  
+  if (!user) {
+    const err = new Error('Invalid or expired OTP');
+    err.statusCode = 400;
+    throw err;
+  }
+  
+  user.password = newPassword;
+  user.resetPasswordOtp = undefined;
+  user.resetPasswordOtpExpiry = undefined;
+  await user.save();
+  
   return { success: true, message: 'Password reset successful' };
 };
 

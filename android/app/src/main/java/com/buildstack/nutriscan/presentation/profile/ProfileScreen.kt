@@ -42,6 +42,8 @@ fun ProfileScreen(
     val commonAllergies = listOf("Peanuts", "Dairy", "Gluten", "Soy", "Nuts", "Shellfish", "Eggs")
     val commonDiets = listOf("Vegan", "Vegetarian", "Keto", "Paleo", "Halal", "Kosher")
 
+    val context = androidx.compose.ui.platform.LocalContext.current
+
     LaunchedEffect(state.profile) {
         state.profile?.let { profile ->
             name = profile.name ?: ""
@@ -50,6 +52,15 @@ fun ProfileScreen(
             height = profile.height?.toString() ?: ""
             selectedAllergies = profile.allergies.toSet()
             selectedDiets = profile.dietaryPreferences.toSet()
+        }
+    }
+
+    LaunchedEffect(state.error, state.saveSuccess) {
+        state.error?.let {
+            android.widget.Toast.makeText(context, it, android.widget.Toast.LENGTH_SHORT).show()
+        }
+        if (state.saveSuccess) {
+            android.widget.Toast.makeText(context, "Profile updated successfully!", android.widget.Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -93,12 +104,7 @@ fun ProfileScreen(
                     .padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                state.error?.let {
-                    Text(text = it, color = MaterialTheme.colorScheme.error)
-                }
-                if (state.saveSuccess) {
-                    Text(text = "Profile updated successfully!", color = MaterialTheme.colorScheme.primary)
-                }
+                // Errors and success are now shown via Toast
 
                 var localImageBytes by remember { mutableStateOf<ByteArray?>(null) }
                 var localMimeType by remember { mutableStateOf<String?>(null) }

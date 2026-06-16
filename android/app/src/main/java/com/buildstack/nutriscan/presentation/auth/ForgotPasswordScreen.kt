@@ -28,10 +28,14 @@ fun ForgotPasswordScreen(
     val authState by viewModel.authState.collectAsState()
     var email by remember { mutableStateOf("") }
 
+    val context = androidx.compose.ui.platform.LocalContext.current
+
     LaunchedEffect(authState) {
         if (authState is AuthState.Success) {
             onNavigateToOtp(email)
             viewModel.resetAuthState()
+        } else if (authState is AuthState.Error) {
+            android.widget.Toast.makeText(context, (authState as AuthState.Error).message, android.widget.Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -85,14 +89,7 @@ fun ForgotPasswordScreen(
                 leadingIcon = Icons.Default.Email
             )
             
-            if (authState is AuthState.Error) {
-                Text(
-                    text = (authState as AuthState.Error).message,
-                    color = MaterialTheme.colorScheme.error,
-                    modifier = Modifier.fillMaxWidth()
-                )
-                Spacer(modifier = Modifier.height(16.dp))
-            }
+            Spacer(modifier = Modifier.height(32.dp))
             
             PrimaryButton(
                 text = if (authState is AuthState.Loading) "Sending..." else "Send OTP",

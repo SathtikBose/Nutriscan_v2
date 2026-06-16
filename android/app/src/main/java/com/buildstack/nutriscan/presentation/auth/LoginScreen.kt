@@ -39,10 +39,14 @@ fun LoginScreen(
 
     val authState by viewModel.authState.collectAsState()
 
+    val context = androidx.compose.ui.platform.LocalContext.current
+
     LaunchedEffect(authState) {
         if (authState is AuthState.Success) {
             onLoginSuccess()
             viewModel.resetAuthState()
+        } else if (authState is AuthState.Error) {
+            android.widget.Toast.makeText(context, (authState as AuthState.Error).message, android.widget.Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -106,13 +110,7 @@ fun LoginScreen(
                 .padding(vertical = 8.dp)
         )
 
-        if (authState is AuthState.Error) {
-            Text(
-                text = (authState as AuthState.Error).message,
-                color = MaterialTheme.colorScheme.error,
-                modifier = Modifier.padding(vertical = 8.dp)
-            )
-        }
+        // Error is now shown via Toast above
         
         Spacer(modifier = Modifier.height(24.dp))
         
