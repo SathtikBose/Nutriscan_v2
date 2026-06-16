@@ -10,8 +10,10 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import com.buildstack.nutriscan.data.local.prefs.TokenManager
 
 data class ProfileState(
     val isLoading: Boolean = false,
@@ -24,11 +26,18 @@ data class ProfileState(
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
     private val profileRepository: ProfileRepository,
-    private val authRepository: AuthRepository
+    private val authRepository: AuthRepository,
+    private val tokenManager: TokenManager
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(ProfileState())
     val state: StateFlow<ProfileState> = _state.asStateFlow()
+
+    val themeMode: StateFlow<String> = tokenManager.theme.stateIn(
+        scope = viewModelScope,
+        started = kotlinx.coroutines.flow.SharingStarted.WhileSubscribed(5000),
+        initialValue = "SYSTEM"
+    )
 
     init {
         loadProfile()
@@ -49,6 +58,7 @@ class ProfileViewModel @Inject constructor(
     }
 
     fun updateProfile(
+        name: String?,
         age: Int?,
         weight: Float?,
         height: Float?,
@@ -59,7 +69,7 @@ class ProfileViewModel @Inject constructor(
     ) {
         viewModelScope.launch {
             _state.update { it.copy(isSaving = true, error = null, saveSuccess = false) }
-            profileRepository.updateProfile(age, weight, height, allergies, dietaryPreferences, imageBytes, mimeType).fold(
+            profileRepository.updateProfile(name, age, weight, height, allergies, dietaryPreferences, imageBytes, mimeType).fold(
                 onSuccess = { profile ->
                     _state.update { it.copy(isSaving = false, profile = profile, saveSuccess = true) }
                 },
@@ -73,6 +83,12 @@ class ProfileViewModel @Inject constructor(
     fun logout() {
         viewModelScope.launch {
             authRepository.logout()
+        }
+    }
+
+    fun setThemeMode(mode: String) {
+        viewModelScope.launch {
+            tokenManager.saveTheme(mode)
         }
     }
 }

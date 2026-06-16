@@ -22,15 +22,26 @@ import com.buildstack.nutriscan.presentation.theme.PrimaryGreen
 import com.buildstack.nutriscan.presentation.theme.SurfaceDark
 import com.buildstack.nutriscan.presentation.theme.TextPrimary
 import com.buildstack.nutriscan.presentation.theme.TextSecondary
+import androidx.hilt.navigation.compose.hiltViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OtpVerificationScreen(
+    email: String,
     onNavigateBack: () -> Unit,
-    onNavigateToResetPassword: () -> Unit
+    onNavigateToResetPassword: (String) -> Unit,
+    viewModel: AuthViewModel = hiltViewModel()
 ) {
+    val authState by viewModel.authState.collectAsState()
     var otpValue by remember { mutableStateOf("") }
     val otpLength = 6
+
+    LaunchedEffect(authState) {
+        if (authState is AuthState.Success) {
+            onNavigateToResetPassword(otpValue)
+            viewModel.resetAuthState()
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -119,19 +130,44 @@ fun OtpVerificationScreen(
             
             Spacer(modifier = Modifier.height(32.dp))
             
+            if (authState is AuthState.Error) {
+                Text(
+                    text = (authState as AuthState.Error).message,
+                    color = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+            }
+            
             PrimaryButton(
-                text = "Verify Code",
-                onClick = onNavigateToResetPassword,
-                enabled = otpValue.length == otpLength
+                text = if (authState is AuthState.Loading) "Verifying..." else "Verify Code",
+                onClick = { viewModel.verifyOtp(email, otpValue) },
+                enabled = otpValue.length == otpLength && authState !is AuthState.Loading
             )
             
             Spacer(modifier = Modifier.height(24.dp))
             
-            Text(
-                text = "Resend code in 00:30",
-                color = TextSecondary,
-                style = MaterialTheme.typography.bodyMedium
-            )
+            var secondsRemaining by remember { mutableStateOf(30) }
+            LaunchedEffect(secondsRemaining) {
+                if (secondsRemaining > 0) {
+                    kotlinx.coroutines.delay(1000)
+                    secondsRemaining--
+                }
+            }
+
+            TextButton(
+                onClick = { 
+                    viewModel.forgotPassword(email)
+                    secondsRemaining = 30
+                },
+                enabled = secondsRemaining == 0
+            ) {
+                Text(
+                    text = if (secondsRemaining > 0) "Resend code in 00:${secondsRemaining.toString().padStart(2, '0')}" else "Resend Code",
+                    color = if (secondsRemaining == 0) MaterialTheme.colorScheme.primary else TextSecondary,
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
         }
     }
 }

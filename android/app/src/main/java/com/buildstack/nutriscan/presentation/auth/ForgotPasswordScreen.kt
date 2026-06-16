@@ -12,6 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.buildstack.nutriscan.presentation.components.CustomTextField
 import com.buildstack.nutriscan.presentation.components.PrimaryButton
 import com.buildstack.nutriscan.presentation.theme.PrimaryGreen
@@ -21,9 +22,18 @@ import com.buildstack.nutriscan.presentation.theme.TextSecondary
 @Composable
 fun ForgotPasswordScreen(
     onNavigateBack: () -> Unit,
-    onNavigateToOtp: () -> Unit
+    onNavigateToOtp: (String) -> Unit,
+    viewModel: AuthViewModel = hiltViewModel()
 ) {
+    val authState by viewModel.authState.collectAsState()
     var email by remember { mutableStateOf("") }
+
+    LaunchedEffect(authState) {
+        if (authState is AuthState.Success) {
+            onNavigateToOtp(email)
+            viewModel.resetAuthState()
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -75,11 +85,19 @@ fun ForgotPasswordScreen(
                 leadingIcon = Icons.Default.Email
             )
             
-            Spacer(modifier = Modifier.height(32.dp))
+            if (authState is AuthState.Error) {
+                Text(
+                    text = (authState as AuthState.Error).message,
+                    color = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+            }
             
             PrimaryButton(
-                text = "Send OTP",
-                onClick = onNavigateToOtp
+                text = if (authState is AuthState.Loading) "Sending..." else "Send OTP",
+                onClick = { viewModel.forgotPassword(email) },
+                enabled = email.isNotBlank() && authState !is AuthState.Loading
             )
         }
     }

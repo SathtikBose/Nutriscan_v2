@@ -6,6 +6,12 @@ import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.PUT
 
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
+import retrofit2.http.Multipart
+import retrofit2.http.Part
+import retrofit2.http.PartMap
+
 data class UpdateProfileRequest(
     val age: Int?,
     val weight: Float?,
@@ -13,12 +19,6 @@ data class UpdateProfileRequest(
     val allergies: List<String>,
     val dietaryPreferences: List<String>
 )
-
-import okhttp3.MultipartBody
-import okhttp3.RequestBody
-import retrofit2.http.Multipart
-import retrofit2.http.Part
-import retrofit2.http.PartMap
 
 interface ProfileApi {
     @GET("api/user/profile")

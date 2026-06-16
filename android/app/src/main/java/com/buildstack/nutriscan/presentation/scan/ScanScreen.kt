@@ -142,13 +142,7 @@ fun ScanScreen(
                 }
             }
 
-            // Viewfinder Overlay
-            Box(
-                modifier = Modifier
-                    .align(Alignment.Center)
-                    .size(250.dp)
-                    .border(2.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(24.dp))
-            )
+            // Viewfinder Overlay removed since AI analyzes the full image
 
             // Bottom Actions
             Row(

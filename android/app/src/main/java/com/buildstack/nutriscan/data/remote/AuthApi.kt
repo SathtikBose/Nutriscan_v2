@@ -34,4 +34,7 @@ interface AuthApi {
 
     @POST("api/auth/reset-password")
     suspend fun resetPassword(@Body request: Map<String, String>): Response<AuthResponse>
+
+    @POST("api/auth/change-password")
+    suspend fun changePassword(@Body request: Map<String, String>): Response<AuthResponse>
 }

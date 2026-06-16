@@ -31,6 +31,7 @@ class ProfileRepositoryImpl @Inject constructor(
     }
 
     override suspend fun updateProfile(
+        name: String?,
         age: Int?,
         weight: Float?,
         height: Float?,
@@ -41,6 +42,7 @@ class ProfileRepositoryImpl @Inject constructor(
     ): Result<UserProfile> = withContext(Dispatchers.IO) {
         try {
             val partMap = mutableMapOf<String, okhttp3.RequestBody>()
+            if (name != null) partMap["name"] = name.toRequestBody("text/plain".toMediaTypeOrNull())
             if (age != null) partMap["age"] = age.toString().toRequestBody("text/plain".toMediaTypeOrNull())
             if (weight != null) partMap["weight"] = weight.toString().toRequestBody("text/plain".toMediaTypeOrNull())
             if (height != null) partMap["height"] = height.toString().toRequestBody("text/plain".toMediaTypeOrNull())

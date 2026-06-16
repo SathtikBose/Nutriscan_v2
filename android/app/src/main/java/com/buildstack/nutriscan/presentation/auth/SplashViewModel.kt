@@ -2,7 +2,7 @@ package com.buildstack.nutriscan.presentation.auth
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.buildstack.nutriscan.data.local.TokenManager
+import com.buildstack.nutriscan.data.local.prefs.TokenManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

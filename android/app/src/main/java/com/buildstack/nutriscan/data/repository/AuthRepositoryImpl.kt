@@ -4,6 +4,8 @@ import com.buildstack.nutriscan.data.remote.AuthApi
 import com.buildstack.nutriscan.domain.repository.AuthRepository
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.runBlocking
 
 @Singleton
 class AuthRepositoryImpl @Inject constructor(
@@ -84,9 +86,22 @@ class AuthRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun changePassword(currentPassword: String, newPassword: String): Result<Boolean> {
+        return try {
+            val response = api.changePassword(mapOf("currentPassword" to currentPassword, "newPassword" to newPassword))
+            if (response.isSuccessful && response.body()?.success == true) {
+                Result.success(true)
+            } else {
+                Result.failure(Exception(response.body()?.message ?: "Change password failed"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
     override fun isLoggedIn(): Boolean {
-        val token = kotlinx.coroutines.runBlocking {
-            kotlinx.coroutines.flow.firstOrNull(tokenManager.token)
+        val token = runBlocking {
+            tokenManager.token.firstOrNull()
         }
         return !token.isNullOrEmpty()
     }

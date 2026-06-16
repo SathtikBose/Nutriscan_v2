@@ -12,13 +12,23 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import dagger.hilt.android.AndroidEntryPoint
 
+import javax.inject.Inject
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+
+    @Inject
+    lateinit var tokenManager: com.buildstack.nutriscan.data.local.prefs.TokenManager
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            com.buildstack.nutriscan.presentation.theme.NutriScanTheme {
+            val themeMode by tokenManager.theme.collectAsState(initial = "SYSTEM")
+            
+            com.buildstack.nutriscan.presentation.theme.NutriScanTheme(themeMode = themeMode) {
                 com.buildstack.nutriscan.presentation.navigation.NutriScanNavProvider()
             }
         }

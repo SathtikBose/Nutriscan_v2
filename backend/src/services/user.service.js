@@ -14,11 +14,20 @@ exports.getProfile = async (userId) => {
 exports.updateProfile = async (userId, data, file) => {
   let profilePicUrl;
   if (file) {
-    const b64 = Buffer.from(file.buffer).toString("base64");
-    const dataURI = "data:" + file.mimetype + ";base64," + b64;
-    const result = await cloudinary.uploader.upload(dataURI, {
-      folder: 'nutriscan/profiles'
+    const uploadStream = () => new Promise((resolve, reject) => {
+      const stream = cloudinary.uploader.upload_stream({ folder: 'nutriscan/profiles' }, (error, result) => {
+        if (result) resolve(result);
+        else reject(error);
+      });
+      const { Readable } = require('stream');
+      const readable = new Readable();
+      readable._read = () => {};
+      readable.push(file.buffer);
+      readable.push(null);
+      readable.pipe(stream);
     });
+    
+    const result = await uploadStream();
     profilePicUrl = result.secure_url;
   }
 

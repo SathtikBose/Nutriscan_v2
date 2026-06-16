@@ -16,10 +16,10 @@ data object Signup : NavKey
 data object ForgotPassword : NavKey
 
 @Serializable
-data object OtpVerification : NavKey
+data class OtpVerification(val email: String) : NavKey
 
 @Serializable
-data object ResetPassword : NavKey
+data class ResetPassword(val email: String, val otp: String) : NavKey
 
 @Serializable
 data object Home : NavKey
@@ -34,4 +34,7 @@ object History : NavKey
 object Profile : NavKey
 
 @Serializable
-data class Result(val id: String) : NavKey
+object ChangePassword : NavKey
+
+@Serializable
+data class ResultRoute(val id: String) : NavKey

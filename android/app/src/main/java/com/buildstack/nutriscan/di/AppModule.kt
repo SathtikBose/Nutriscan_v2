@@ -13,6 +13,7 @@ import dagger.hilt.components.SingletonComponent
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Singleton
+import kotlinx.coroutines.flow.firstOrNull
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -27,7 +28,7 @@ object NetworkModule {
             .addInterceptor { chain ->
                 val requestBuilder = chain.request().newBuilder()
                 val token = kotlinx.coroutines.runBlocking {
-                    kotlinx.coroutines.flow.firstOrNull(tokenManager.token)
+                    tokenManager.token.firstOrNull()
                 }
                 if (!token.isNullOrEmpty()) {
                     requestBuilder.addHeader("Authorization", "Bearer $token")

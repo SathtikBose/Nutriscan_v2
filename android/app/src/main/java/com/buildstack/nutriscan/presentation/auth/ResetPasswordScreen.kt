@@ -18,16 +18,28 @@ import androidx.compose.ui.unit.dp
 import com.buildstack.nutriscan.presentation.components.CustomTextField
 import com.buildstack.nutriscan.presentation.components.PrimaryButton
 import com.buildstack.nutriscan.presentation.theme.TextSecondary
+import androidx.hilt.navigation.compose.hiltViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ResetPasswordScreen(
+    email: String,
+    otp: String,
     onNavigateBack: () -> Unit,
-    onResetSuccess: () -> Unit
+    onResetSuccess: () -> Unit,
+    viewModel: AuthViewModel = hiltViewModel()
 ) {
+    val authState by viewModel.authState.collectAsState()
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
+
+    LaunchedEffect(authState) {
+        if (authState is AuthState.Success) {
+            onResetSuccess()
+            viewModel.resetAuthState()
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -96,11 +108,19 @@ fun ResetPasswordScreen(
                 visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation()
             )
             
-            Spacer(modifier = Modifier.height(32.dp))
+            if (authState is AuthState.Error) {
+                Text(
+                    text = (authState as AuthState.Error).message,
+                    color = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+            }
             
             PrimaryButton(
-                text = "Reset Password",
-                onClick = onResetSuccess
+                text = if (authState is AuthState.Loading) "Resetting..." else "Reset Password",
+                onClick = { viewModel.resetPassword(email, otp, password) },
+                enabled = password.isNotBlank() && password == confirmPassword && authState !is AuthState.Loading
             )
         }
     }

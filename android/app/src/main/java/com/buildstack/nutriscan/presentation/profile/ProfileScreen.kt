@@ -1,15 +1,19 @@
 package com.buildstack.nutriscan.presentation.profile
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.background
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Logout
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -22,10 +26,13 @@ fun ProfileScreen(
     onNavigateToHome: () -> Unit,
     onNavigateToScan: () -> Unit,
     onNavigateToHistory: () -> Unit,
+    onNavigateToChangePassword: () -> Unit,
     viewModel: ProfileViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsState()
+    val currentTheme by viewModel.themeMode.collectAsState()
 
+    var name by remember { mutableStateOf("") }
     var age by remember { mutableStateOf("") }
     var weight by remember { mutableStateOf("") }
     var height by remember { mutableStateOf("") }
@@ -37,6 +44,7 @@ fun ProfileScreen(
 
     LaunchedEffect(state.profile) {
         state.profile?.let { profile ->
+            name = profile.name ?: ""
             age = profile.age?.toString() ?: ""
             weight = profile.weight?.toString() ?: ""
             height = profile.height?.toString() ?: ""
@@ -137,19 +145,19 @@ fun ProfileScreen(
                             contentDescription = "Profile Picture",
                             modifier = Modifier
                                 .size(100.dp)
-                                .androidx.compose.foundation.shape.CircleShape
-                                .background(MaterialTheme.colorScheme.surfaceVariant)
-                                .androidx.compose.ui.draw.clip(androidx.compose.foundation.shape.CircleShape),
+                                .clip(androidx.compose.foundation.shape.CircleShape)
+                                .background(MaterialTheme.colorScheme.surfaceVariant),
                             contentScale = androidx.compose.ui.layout.ContentScale.Crop
                         )
                     } else {
                         Box(
                             modifier = Modifier
                                 .size(100.dp)
-                                .background(MaterialTheme.colorScheme.surfaceVariant, androidx.compose.foundation.shape.CircleShape),
+                                .clip(androidx.compose.foundation.shape.CircleShape)
+                                .background(MaterialTheme.colorScheme.surfaceVariant),
                             contentAlignment = Alignment.Center
                         ) {
-                            Icon(androidx.compose.material.icons.Icons.Default.Person, contentDescription = null, modifier = Modifier.size(50.dp))
+                            Icon(Icons.Default.Person, contentDescription = null, modifier = Modifier.size(50.dp))
                         }
                     }
                     
@@ -165,6 +173,13 @@ fun ProfileScreen(
                         }
                     }
                 }
+
+                OutlinedTextField(
+                    value = name,
+                    onValueChange = { name = it },
+                    label = { Text("Name") },
+                    modifier = Modifier.fillMaxWidth()
+                )
 
                 OutlinedTextField(
                     value = age,
@@ -236,6 +251,7 @@ fun ProfileScreen(
                 Button(
                     onClick = {
                         viewModel.updateProfile(
+                            name = name.takeIf { it.isNotBlank() },
                             age = age.toIntOrNull(),
                             weight = weight.toFloatOrNull(),
                             height = height.toFloatOrNull(),
@@ -253,6 +269,31 @@ fun ProfileScreen(
                     } else {
                         Text("Save Profile")
                     }
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+                HorizontalDivider()
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Text("App Settings", style = MaterialTheme.typography.titleMedium)
+                
+                Text("Theme", style = MaterialTheme.typography.bodyMedium)
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    FilterChip(selected = currentTheme == "SYSTEM", onClick = { viewModel.setThemeMode("SYSTEM") }, label = { Text("System") })
+                    FilterChip(selected = currentTheme == "LIGHT", onClick = { viewModel.setThemeMode("LIGHT") }, label = { Text("Light") })
+                    FilterChip(selected = currentTheme == "DARK", onClick = { viewModel.setThemeMode("DARK") }, label = { Text("Dark") })
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+                HorizontalDivider()
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Text("Security", style = MaterialTheme.typography.titleMedium)
+                OutlinedButton(
+                    onClick = onNavigateToChangePassword,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Change Password")
                 }
             }
         }

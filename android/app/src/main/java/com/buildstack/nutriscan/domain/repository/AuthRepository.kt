@@ -6,6 +6,7 @@ interface AuthRepository {
     suspend fun forgotPassword(email: String): Result<Boolean>
     suspend fun verifyOtp(email: String, otp: String): Result<Boolean>
     suspend fun resetPassword(email: String, otp: String, password: String): Result<Boolean>
+    suspend fun changePassword(currentPassword: String, newPassword: String): Result<Boolean>
     fun isLoggedIn(): Boolean
     suspend fun logout()
 }

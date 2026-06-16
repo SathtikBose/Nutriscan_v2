@@ -52,4 +52,40 @@ class AuthViewModel @Inject constructor(
     fun resetAuthState() {
         _authState.value = AuthState.Idle
     }
+
+    fun forgotPassword(email: String) {
+        viewModelScope.launch {
+            _authState.value = AuthState.Loading
+            val result = repository.forgotPassword(email)
+            if (result.isSuccess) {
+                _authState.value = AuthState.Success
+            } else {
+                _authState.value = AuthState.Error(result.exceptionOrNull()?.message ?: "Unknown error")
+            }
+        }
+    }
+
+    fun verifyOtp(email: String, otp: String) {
+        viewModelScope.launch {
+            _authState.value = AuthState.Loading
+            val result = repository.verifyOtp(email, otp)
+            if (result.isSuccess) {
+                _authState.value = AuthState.Success
+            } else {
+                _authState.value = AuthState.Error(result.exceptionOrNull()?.message ?: "Unknown error")
+            }
+        }
+    }
+
+    fun resetPassword(email: String, otp: String, password: String) {
+        viewModelScope.launch {
+            _authState.value = AuthState.Loading
+            val result = repository.resetPassword(email, otp, password)
+            if (result.isSuccess) {
+                _authState.value = AuthState.Success
+            } else {
+                _authState.value = AuthState.Error(result.exceptionOrNull()?.message ?: "Unknown error")
+            }
+        }
+    }
 }

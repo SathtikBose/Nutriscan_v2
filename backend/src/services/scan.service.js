@@ -10,12 +10,20 @@ exports.analyzeFood = async (user, file) => {
     throw err;
   }
 
-  // 1. Upload to Cloudinary
-  const b64 = Buffer.from(file.buffer).toString("base64");
-  const dataURI = "data:" + file.mimetype + ";base64," + b64;
-  const result = await cloudinary.uploader.upload(dataURI, {
-    folder: 'nutriscan/scans'
+  const uploadStream = () => new Promise((resolve, reject) => {
+    const stream = cloudinary.uploader.upload_stream({ folder: 'nutriscan/scans' }, (error, result) => {
+      if (result) resolve(result);
+      else reject(error);
+    });
+    const { Readable } = require('stream');
+    const readable = new Readable();
+    readable._read = () => {};
+    readable.push(file.buffer);
+    readable.push(null);
+    readable.pipe(stream);
   });
+
+  const result = await uploadStream();
   const imageUrl = result.secure_url;
 
   // 2. Prepare Gemini Context

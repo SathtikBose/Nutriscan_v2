@@ -21,6 +21,7 @@ class TokenManager @Inject constructor(
     companion object {
         private val TOKEN_KEY = stringPreferencesKey("jwt_token")
         private val USER_ID_KEY = stringPreferencesKey("user_id")
+        private val THEME_KEY = stringPreferencesKey("app_theme")
     }
 
     val token: Flow<String?> = context.dataStore.data.map { preferences ->
@@ -29,6 +30,10 @@ class TokenManager @Inject constructor(
 
     val userId: Flow<String?> = context.dataStore.data.map { preferences ->
         preferences[USER_ID_KEY]
+    }
+
+    val theme: Flow<String> = context.dataStore.data.map { preferences ->
+        preferences[THEME_KEY] ?: "SYSTEM"
     }
 
     suspend fun saveToken(token: String, userId: String) {
@@ -42,6 +47,11 @@ class TokenManager @Inject constructor(
         context.dataStore.edit { preferences ->
             preferences.remove(TOKEN_KEY)
             preferences.remove(USER_ID_KEY)
+        }
+    }
+    suspend fun saveTheme(themeMode: String) {
+        context.dataStore.edit { preferences ->
+            preferences[THEME_KEY] = themeMode
         }
     }
 }
