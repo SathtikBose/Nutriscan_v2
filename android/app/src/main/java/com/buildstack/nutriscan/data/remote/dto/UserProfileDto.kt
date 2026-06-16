@@ -4,7 +4,7 @@ import com.google.gson.annotations.SerializedName
 
 data class UserProfileDto(
     @SerializedName("_id") val id: String,
-    val name: String,
+    val name: String?,
     val email: String,
     val age: Int?,
     val weight: Float?,
@@ -15,7 +15,7 @@ data class UserProfileDto(
 ) {
     fun toDomainModel() = com.buildstack.nutriscan.domain.model.UserProfile(
         id = id,
-        name = name,
+        name = name ?: "User",
         email = email,
         age = age,
         weight = weight,

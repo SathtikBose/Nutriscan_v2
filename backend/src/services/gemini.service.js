@@ -39,7 +39,7 @@ Return ONLY a JSON object with this exact structure (no markdown, no backticks, 
                 {
                     inlineData: {
                         data: file.buffer.toString("base64"),
-                        mimeType: file.mimetype
+                        mimeType: file.mimetype === 'image/*' ? 'image/jpeg' : file.mimetype
                     }
                 },
                 prompt
