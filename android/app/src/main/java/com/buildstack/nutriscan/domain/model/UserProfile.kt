@@ -7,6 +7,7 @@ data class UserProfile(
     val age: Int?,
     val weight: Float?,
     val height: Float?,
+    val profilePic: String?,
     val allergies: List<String>,
     val dietaryPreferences: List<String>
 )

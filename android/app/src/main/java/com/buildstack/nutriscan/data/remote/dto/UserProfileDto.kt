@@ -9,6 +9,7 @@ data class UserProfileDto(
     val age: Int?,
     val weight: Float?,
     val height: Float?,
+    val profilePic: String?,
     val allergies: List<String>?,
     val dietaryPreferences: List<String>?
 ) {
@@ -19,6 +20,7 @@ data class UserProfileDto(
         age = age,
         weight = weight,
         height = height,
+        profilePic = profilePic,
         allergies = allergies ?: emptyList(),
         dietaryPreferences = dietaryPreferences ?: emptyList()
     )

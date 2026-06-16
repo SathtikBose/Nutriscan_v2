@@ -15,7 +15,8 @@ data class AuthResponse(
 data class UserDto(
     val id: String,
     val name: String,
-    val email: String
+    val email: String,
+    val profilePic: String?
 )
 
 interface AuthApi {

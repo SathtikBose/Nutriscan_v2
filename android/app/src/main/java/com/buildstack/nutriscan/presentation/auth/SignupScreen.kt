@@ -24,16 +24,30 @@ import com.buildstack.nutriscan.presentation.components.PrimaryButton
 import com.buildstack.nutriscan.presentation.theme.PrimaryGreen
 import com.buildstack.nutriscan.presentation.theme.TextSecondary
 
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.buildstack.nutriscan.presentation.auth.AuthViewModel
+import com.buildstack.nutriscan.presentation.auth.AuthState
+
 @Composable
 fun SignupScreen(
     onNavigateToLogin: () -> Unit,
-    onSignupSuccess: () -> Unit
+    onSignupSuccess: () -> Unit,
+    viewModel: AuthViewModel = hiltViewModel()
 ) {
     var name by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
+
+    val authState by viewModel.authState.collectAsState()
+
+    LaunchedEffect(authState) {
+        if (authState is AuthState.Success) {
+            onSignupSuccess()
+            viewModel.resetAuthState()
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -104,13 +118,29 @@ fun SignupScreen(
             leadingIcon = Icons.Default.Lock,
             visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation()
         )
+
+        if (authState is AuthState.Error) {
+            Text(
+                text = (authState as AuthState.Error).message,
+                color = MaterialTheme.colorScheme.error,
+                modifier = Modifier.padding(vertical = 8.dp)
+            )
+        }
         
         Spacer(modifier = Modifier.height(32.dp))
         
-        PrimaryButton(
-            text = "Create Account",
-            onClick = onSignupSuccess
-        )
+        if (authState is AuthState.Loading) {
+            CircularProgressIndicator(color = PrimaryGreen)
+        } else {
+            PrimaryButton(
+                text = "Create Account",
+                onClick = { 
+                    if (password == confirmPassword) {
+                        viewModel.signup(name, email, password) 
+                    }
+                }
+            )
+        }
         
         Spacer(modifier = Modifier.weight(1f))
         

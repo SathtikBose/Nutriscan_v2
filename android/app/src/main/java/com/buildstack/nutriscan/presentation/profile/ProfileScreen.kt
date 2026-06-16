@@ -92,6 +92,80 @@ fun ProfileScreen(
                     Text(text = "Profile updated successfully!", color = MaterialTheme.colorScheme.primary)
                 }
 
+                var localImageBytes by remember { mutableStateOf<ByteArray?>(null) }
+                var localMimeType by remember { mutableStateOf<String?>(null) }
+                var localBitmap by remember { mutableStateOf<android.graphics.Bitmap?>(null) }
+                var localUri by remember { mutableStateOf<android.net.Uri?>(null) }
+                val context = androidx.compose.ui.platform.LocalContext.current
+
+                val galleryLauncher = androidx.activity.compose.rememberLauncherForActivityResult(
+                    contract = androidx.activity.result.contract.ActivityResultContracts.GetContent()
+                ) { uri ->
+                    uri?.let {
+                        localUri = it
+                        localBitmap = null
+                        val file = com.buildstack.nutriscan.util.ImageUtils.uriToFile(context, it)
+                        if (file != null) {
+                            localImageBytes = file.readBytes()
+                            localMimeType = context.contentResolver.getType(it) ?: "image/jpeg"
+                        }
+                    }
+                }
+
+                val cameraLauncher = androidx.activity.compose.rememberLauncherForActivityResult(
+                    contract = androidx.activity.result.contract.ActivityResultContracts.TakePicturePreview()
+                ) { bitmap ->
+                    bitmap?.let {
+                        localBitmap = it
+                        localUri = null
+                        val bos = java.io.ByteArrayOutputStream()
+                        it.compress(android.graphics.Bitmap.CompressFormat.JPEG, 90, bos)
+                        localImageBytes = bos.toByteArray()
+                        localMimeType = "image/jpeg"
+                    }
+                }
+
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    val model: Any? = localBitmap ?: localUri ?: state.profile?.profilePic
+                    
+                    if (model != null) {
+                        coil.compose.AsyncImage(
+                            model = model,
+                            contentDescription = "Profile Picture",
+                            modifier = Modifier
+                                .size(100.dp)
+                                .androidx.compose.foundation.shape.CircleShape
+                                .background(MaterialTheme.colorScheme.surfaceVariant)
+                                .androidx.compose.ui.draw.clip(androidx.compose.foundation.shape.CircleShape),
+                            contentScale = androidx.compose.ui.layout.ContentScale.Crop
+                        )
+                    } else {
+                        Box(
+                            modifier = Modifier
+                                .size(100.dp)
+                                .background(MaterialTheme.colorScheme.surfaceVariant, androidx.compose.foundation.shape.CircleShape),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(androidx.compose.material.icons.Icons.Default.Person, contentDescription = null, modifier = Modifier.size(50.dp))
+                        }
+                    }
+                    
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        modifier = Modifier.padding(top = 8.dp)
+                    ) {
+                        TextButton(onClick = { cameraLauncher.launch(null) }) {
+                            Text("Take Photo")
+                        }
+                        TextButton(onClick = { galleryLauncher.launch("image/*") }) {
+                            Text("Choose Gallery")
+                        }
+                    }
+                }
+
                 OutlinedTextField(
                     value = age,
                     onValueChange = { age = it },
@@ -166,7 +240,9 @@ fun ProfileScreen(
                             weight = weight.toFloatOrNull(),
                             height = height.toFloatOrNull(),
                             allergies = selectedAllergies.toList(),
-                            dietaryPreferences = selectedDiets.toList()
+                            dietaryPreferences = selectedDiets.toList(),
+                            imageBytes = localImageBytes,
+                            mimeType = localMimeType
                         )
                     },
                     modifier = Modifier.fillMaxWidth(),

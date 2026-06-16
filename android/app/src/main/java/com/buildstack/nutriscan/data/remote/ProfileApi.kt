@@ -14,10 +14,20 @@ data class UpdateProfileRequest(
     val dietaryPreferences: List<String>
 )
 
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
+import retrofit2.http.Multipart
+import retrofit2.http.Part
+import retrofit2.http.PartMap
+
 interface ProfileApi {
-    @GET("user/profile")
+    @GET("api/user/profile")
     suspend fun getProfile(): Response<ProfileResponse>
 
-    @PUT("user/profile")
-    suspend fun updateProfile(@Body request: UpdateProfileRequest): Response<ProfileResponse>
+    @Multipart
+    @PUT("api/user/profile")
+    suspend fun updateProfile(
+        @Part profilePic: MultipartBody.Part?,
+        @PartMap fields: Map<String, @JvmSuppressWildcards RequestBody>
+    ): Response<ProfileResponse>
 }

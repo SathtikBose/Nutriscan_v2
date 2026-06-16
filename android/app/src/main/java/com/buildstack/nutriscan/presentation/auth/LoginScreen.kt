@@ -22,15 +22,29 @@ import com.buildstack.nutriscan.presentation.components.PrimaryButton
 import com.buildstack.nutriscan.presentation.theme.PrimaryGreen
 import com.buildstack.nutriscan.presentation.theme.TextSecondary
 
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.buildstack.nutriscan.presentation.auth.AuthViewModel
+import com.buildstack.nutriscan.presentation.auth.AuthState
+
 @Composable
 fun LoginScreen(
     onNavigateToSignup: () -> Unit,
     onNavigateToForgotPassword: () -> Unit,
-    onLoginSuccess: () -> Unit
+    onLoginSuccess: () -> Unit,
+    viewModel: AuthViewModel = hiltViewModel()
 ) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
+
+    val authState by viewModel.authState.collectAsState()
+
+    LaunchedEffect(authState) {
+        if (authState is AuthState.Success) {
+            onLoginSuccess()
+            viewModel.resetAuthState()
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -91,13 +105,25 @@ fun LoginScreen(
                 .clickable { onNavigateToForgotPassword() }
                 .padding(vertical = 8.dp)
         )
+
+        if (authState is AuthState.Error) {
+            Text(
+                text = (authState as AuthState.Error).message,
+                color = MaterialTheme.colorScheme.error,
+                modifier = Modifier.padding(vertical = 8.dp)
+            )
+        }
         
         Spacer(modifier = Modifier.height(24.dp))
         
-        PrimaryButton(
-            text = "Login",
-            onClick = onLoginSuccess
-        )
+        if (authState is AuthState.Loading) {
+            CircularProgressIndicator(color = PrimaryGreen)
+        } else {
+            PrimaryButton(
+                text = "Login",
+                onClick = { viewModel.login(email, password) }
+            )
+        }
         
         Spacer(modifier = Modifier.weight(1f))
         

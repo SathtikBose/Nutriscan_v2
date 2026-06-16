@@ -23,6 +23,10 @@ fun NutriScanNavProvider() {
                     onNavigateToLogin = {
                         backStack.removeLastOrNull()
                         backStack.add(Login)
+                    },
+                    onNavigateToHome = {
+                        backStack.removeLastOrNull()
+                        backStack.add(Home)
                     }
                 )
             }

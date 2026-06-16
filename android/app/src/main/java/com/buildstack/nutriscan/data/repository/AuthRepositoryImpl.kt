@@ -7,16 +7,18 @@ import javax.inject.Singleton
 
 @Singleton
 class AuthRepositoryImpl @Inject constructor(
-    private val api: AuthApi
+    private val api: AuthApi,
+    private val tokenManager: com.buildstack.nutriscan.data.local.prefs.TokenManager
 ) : AuthRepository {
-
-    private var token: String? = null // Temporary in-memory token
 
     override suspend fun login(email: String, password: String): Result<Boolean> {
         return try {
             val response = api.login(mapOf("email" to email, "password" to password))
             if (response.isSuccessful && response.body()?.success == true) {
-                token = response.body()?.token
+                val body = response.body()!!
+                if (body.token != null && body.user?.id != null) {
+                    tokenManager.saveToken(body.token, body.user.id)
+                }
                 Result.success(true)
             } else {
                 Result.failure(Exception(response.body()?.message ?: "Login failed"))
@@ -30,7 +32,10 @@ class AuthRepositoryImpl @Inject constructor(
         return try {
             val response = api.signup(mapOf("name" to name, "email" to email, "password" to password))
             if (response.isSuccessful && response.body()?.success == true) {
-                token = response.body()?.token
+                val body = response.body()!!
+                if (body.token != null && body.user?.id != null) {
+                    tokenManager.saveToken(body.token, body.user.id)
+                }
                 Result.success(true)
             } else {
                 Result.failure(Exception(response.body()?.message ?: "Signup failed"))
@@ -80,10 +85,13 @@ class AuthRepositoryImpl @Inject constructor(
     }
 
     override fun isLoggedIn(): Boolean {
-        return token != null
+        val token = kotlinx.coroutines.runBlocking {
+            kotlinx.coroutines.flow.firstOrNull(tokenManager.token)
+        }
+        return !token.isNullOrEmpty()
     }
 
     override suspend fun logout() {
-        token = null
+        tokenManager.clearToken()
     }
 }

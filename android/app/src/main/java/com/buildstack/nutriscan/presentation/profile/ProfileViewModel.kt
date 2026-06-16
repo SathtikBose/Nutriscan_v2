@@ -53,11 +53,13 @@ class ProfileViewModel @Inject constructor(
         weight: Float?,
         height: Float?,
         allergies: List<String>,
-        dietaryPreferences: List<String>
+        dietaryPreferences: List<String>,
+        imageBytes: ByteArray? = null,
+        mimeType: String? = null
     ) {
         viewModelScope.launch {
             _state.update { it.copy(isSaving = true, error = null, saveSuccess = false) }
-            profileRepository.updateProfile(age, weight, height, allergies, dietaryPreferences).fold(
+            profileRepository.updateProfile(age, weight, height, allergies, dietaryPreferences, imageBytes, mimeType).fold(
                 onSuccess = { profile ->
                     _state.update { it.copy(isSaving = false, profile = profile, saveSuccess = true) }
                 },

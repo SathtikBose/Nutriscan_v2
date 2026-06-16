@@ -9,6 +9,8 @@ interface ProfileRepository {
         weight: Float?,
         height: Float?,
         allergies: List<String>,
-        dietaryPreferences: List<String>
+        dietaryPreferences: List<String>,
+        imageBytes: ByteArray? = null,
+        mimeType: String? = null
     ): Result<UserProfile>
 }

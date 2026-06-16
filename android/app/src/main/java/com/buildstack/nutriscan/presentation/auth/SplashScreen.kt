@@ -21,13 +21,27 @@ import androidx.compose.ui.unit.dp
 import com.buildstack.nutriscan.presentation.theme.PrimaryGreen
 import kotlinx.coroutines.delay
 
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.hilt.navigation.compose.hiltViewModel
+
 @Composable
 fun SplashScreen(
-    onNavigateToLogin: () -> Unit
+    onNavigateToLogin: () -> Unit,
+    onNavigateToHome: () -> Unit,
+    viewModel: SplashViewModel = hiltViewModel()
 ) {
-    LaunchedEffect(key1 = true) {
-        delay(2000L) // Simulate loading
-        onNavigateToLogin()
+    val isLoggedIn by viewModel.isLoggedIn.collectAsState()
+
+    LaunchedEffect(isLoggedIn) {
+        if (isLoggedIn != null) {
+            delay(2000L) // Simulate loading
+            if (isLoggedIn == true) {
+                onNavigateToHome()
+            } else {
+                onNavigateToLogin()
+            }
+        }
     }
 
     Column(
