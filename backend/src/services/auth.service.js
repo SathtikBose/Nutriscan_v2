@@ -57,11 +57,17 @@ exports.forgotPassword = async (email) => {
     <p>This OTP is valid for 15 minutes.</p>
   `;
   
-  await sendEmail({
+  const emailResult = await sendEmail({
     to: email,
     subject: 'Password Reset OTP - NutriScan',
     html: emailHtml
   });
+
+  if (!emailResult.success) {
+    const err = new Error('Failed to send OTP email. Note: If using Resend test API key, you can only send to your verified email.');
+    err.statusCode = 500;
+    throw err;
+  }
 
   return { success: true, message: 'OTP sent to email' };
 };
