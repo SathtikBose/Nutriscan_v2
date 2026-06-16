@@ -16,7 +16,8 @@ import javax.inject.Inject
 data class HistoryUiState(
     val scans: List<ScanResult> = emptyList(),
     val isSyncing: Boolean = false,
-    val errorMessage: String? = null
+    val errorMessage: String? = null,
+    val syncSuccess: Boolean = false
 )
 
 @HiltViewModel
@@ -47,7 +48,7 @@ class HistoryViewModel @Inject constructor(
 
     fun syncHistory() {
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isSyncing = true, errorMessage = null)
+            _uiState.value = _uiState.value.copy(isSyncing = true, errorMessage = null, syncSuccess = false)
             val result = syncHistoryUseCase()
             if (result.isFailure) {
                 _uiState.value = _uiState.value.copy(
@@ -55,7 +56,7 @@ class HistoryViewModel @Inject constructor(
                     errorMessage = result.exceptionOrNull()?.message
                 )
             } else {
-                _uiState.value = _uiState.value.copy(isSyncing = false)
+                _uiState.value = _uiState.value.copy(isSyncing = false, syncSuccess = true)
             }
         }
     }

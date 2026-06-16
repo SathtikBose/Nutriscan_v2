@@ -33,6 +33,16 @@ fun HistoryScreen(
     viewModel: HistoryViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val context = androidx.compose.ui.platform.LocalContext.current
+
+    androidx.compose.runtime.LaunchedEffect(uiState.syncSuccess, uiState.errorMessage) {
+        if (uiState.syncSuccess) {
+            android.widget.Toast.makeText(context, "History synced!", android.widget.Toast.LENGTH_SHORT).show()
+        }
+        if (uiState.errorMessage != null) {
+            android.widget.Toast.makeText(context, uiState.errorMessage, android.widget.Toast.LENGTH_SHORT).show()
+        }
+    }
 
     Scaffold(
         topBar = {

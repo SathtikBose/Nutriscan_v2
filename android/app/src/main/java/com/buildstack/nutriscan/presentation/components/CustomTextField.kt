@@ -38,11 +38,11 @@ fun CustomTextField(
         shape = RoundedCornerShape(8.dp),
         colors = OutlinedTextFieldDefaults.colors(
             focusedBorderColor = PrimaryGreen,
-            unfocusedBorderColor = Color.White.copy(alpha = 0.1f),
-            focusedContainerColor = SurfaceDark,
-            unfocusedContainerColor = SurfaceDark,
-            focusedTextColor = TextPrimary,
-            unfocusedTextColor = TextPrimary
+            unfocusedBorderColor = androidx.compose.material3.MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f),
+            focusedContainerColor = androidx.compose.material3.MaterialTheme.colorScheme.surfaceVariant,
+            unfocusedContainerColor = androidx.compose.material3.MaterialTheme.colorScheme.surfaceVariant,
+            focusedTextColor = androidx.compose.material3.MaterialTheme.colorScheme.onSurface,
+            unfocusedTextColor = androidx.compose.material3.MaterialTheme.colorScheme.onSurface
         ),
         keyboardOptions = keyboardOptions,
         visualTransformation = visualTransformation,
