@@ -19,8 +19,8 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         // Use a properties file or environment variable in a real CI setup
-        // Defaulting to Vercel backend if not specified in local.properties
-        val apiUrl = project.findProperty("API_URL") ?: "\"https://nutriscan-v2-omega.vercel.app/\""
+        // Defaulting to Render backend if not specified in local.properties
+        val apiUrl = project.findProperty("API_URL") ?: "\"https://nutriscan-fga9.onrender.com/\""
         buildConfigField("String", "API_URL", apiUrl.toString())
     }
 
