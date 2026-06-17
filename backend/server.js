@@ -68,6 +68,10 @@ app.get('/', (req, res) => {
   res.json({ message: 'Welcome to NutriScan API' });
 });
 
+app.get('/health', (req, res) => {
+  res.status(200).send('OK');
+});
+
 // Global error handler
 app.use(errorHandler);
 
